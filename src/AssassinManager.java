@@ -48,17 +48,33 @@ public class AssassinManager {
 	
 	public boolean killRingContains(String name) {  //Is ok to assume killRing will never be empty
 		AssassinNode current = killRing;
-		while(current.next != null) {
-			if(current.name.equals(name)) {
+		if(current.next == null && current.name.toLowerCase().equals(name.toLowerCase())) { //Single Element List
+			return true;
+		}
+		while(current.next != null) { //All other sizes
+			if(current.name.toLowerCase().equals(name.toLowerCase())) {
 				return true;
 			}
 			current = current.next;
 		}
-		return false;
+		return current.name.toLowerCase().equals(name.toLowerCase()); //Checks the last element
 	}
 	
 	public boolean graveyardContains(String name) {
-
+		AssassinNode current = graveyard;
+		if(current == null) {
+			return false;
+		}
+		if(current.next == null && current.name.toLowerCase().equals(name.toLowerCase())) { //Single Element List
+			return true;
+		}
+		while(current.next != null) { //All other sizes
+			if(current.name.toLowerCase().equals(name.toLowerCase())) {
+				return true;
+			}
+			current = current.next;
+		}
+		return current.name.toLowerCase().equals(name.toLowerCase()); //Checks the last element
 	}
 	
 	public boolean gameOver() {
@@ -72,22 +88,40 @@ public class AssassinManager {
 	}
 	
 	public void kill(String name) {
-		if(!killRingContains(name)) {
+		if(!killRingContains(name)) { //Check for non existent target
 			throw new IllegalArgumentException();
+		} else if(gameOver()) { //Check for game over
+			throw new IllegalStateException();
 		}
-		boolean found = false;
+		
 		AssassinNode current = killRing;
-		while(!found) {
-			if(current.next.name.equals(name)) {
-				found = true;
-			} else {
-				current = current.next;
+		if(current.name.toLowerCase().equals(name.toLowerCase())) { //Current = Victim //if first element is victim
+			AssassinNode killer = current;
+			while(killer.next != null) {
+				killer = killer.next;
 			}
+			current.killer = killer.name;
+			AssassinNode temp = graveyard;
+			graveyard = current;
+			current = current.next;
+			graveyard.next = temp;
+			killRing = current;
+			
+		} else {
+			boolean found = false;
+			while(!found) { //Current.next = Victim, Current = killer //if all other elements is victim
+				if(current.next.name.toLowerCase().equals(name.toLowerCase())) {
+					found = true;
+				} else {
+					current = current.next;
+				}
+			}
+			current.next.killer = current.name;
+			AssassinNode temp = graveyard;
+			graveyard = current.next;
+			current.next = current.next.next;
+			graveyard.next = temp;
 		}
-		AssassinNode temp = graveyard;
-		graveyard = current.next;
-		current.next = current.next.next;
-		graveyard.next = temp;
 	}
 	
 }
