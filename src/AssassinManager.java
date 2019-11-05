@@ -24,8 +24,8 @@ public class AssassinManager {
 		}
 	}
 	
-	//Pre: An object has been instantiated
-	//Post: 
+	//Pre: An object has been instantiated.
+	//Post: Prints the kill ring to console with required indentation and formatting
 	public void printKillRing() {
 		if(killRing == null) { //Empty List
 			System.out.println(0);
@@ -42,8 +42,8 @@ public class AssassinManager {
 		}
 	}
 	
-	//Pre: ?
-	//Post: ?
+	//Pre: An object has been instantiated.
+	//Post: Prints the graveyard to console with required indentation and formatting
 	public void printGraveyard() {
 		if(graveyard != null) {
 			AssassinNode current = graveyard;
@@ -55,7 +55,7 @@ public class AssassinManager {
 		}
 	}
 	
-	//Pre: A string to test if AssassinManager killRing contains it.
+	//Pre: A string to test if AssassinManager killRing contains it; kill ring is not empty.
 	//Post: Returns true if AssassinManager killRing contains the string (ignoring case); Returns false if the killRing does not contain the string given.
 	public boolean killRingContains(String name) {  //Is ok to assume killRing will never be empty
 		AssassinNode current = killRing;
