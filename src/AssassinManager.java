@@ -1,3 +1,7 @@
+/*
+* @author Tyler CH
+* @Assignment_Info AssassinManager class for Assassin project
+*/
 import java.util.List;
 
 public class AssassinManager {
@@ -20,8 +24,8 @@ public class AssassinManager {
 		}
 	}
 	
-	//Pre: ?
-	//Post: ?
+	//Pre: An object has been instantiated
+	//Post: 
 	public void printKillRing() {
 		if(killRing == null) { //Empty List
 			System.out.println(0);
