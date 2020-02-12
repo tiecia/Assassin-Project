@@ -1,6 +1,7 @@
-/*
+/**
 * @author Tyler CH
 * @Assignment_Info AssassinManager class for Assassin project
+* @version 1.1
 */
 import java.util.List;
 
@@ -8,45 +9,63 @@ public class AssassinManager {
 	
 	private AssassinNode killRing;
 	private AssassinNode graveyard;
-	
-	//Pre: A List<String> with non empty strings and no duplicate names
-	//Post: Creates an AssassinManager object with a kill ring in the exact order as the the input list names.
-	//Throws: IllegalArgumentException if precondition list is empty.
+
+	/**
+	 * Creates a new instance of {@link AssassinManager}
+	 *
+	 * @param names a list with non empty strings and no duplicate names that contains names of all players
+	 *
+	 * @throws IllegalArgumentException if names is empty
+	 *
+	 * @return a new instance of {@link AssassinManager} that is populated with all names in names list
+	 * @since 1.0
+	 */
 	public AssassinManager(List<String> names) {
 		if(names.isEmpty()) {
 			throw new IllegalArgumentException();
 		}
-		killRing = new AssassinNode(names.get(0));
-		AssassinNode insertPos = killRing; 
-		for(int i = 1; i<names.size(); i++) {
+		this.killRing = new AssassinNode(names.get(0));
+		AssassinNode insertPos = this.killRing;
+		for(int i = 1; i < names.size(); i++) {
 			insertPos.next = new AssassinNode(names.get(i));
 			insertPos = insertPos.next;
 		}
 	}
-	
-	//Pre: An object has been instantiated.
-	//Post: Prints the kill ring to console with required indentation and formatting
+
+	/**
+	 * Prints all the players who have not been killed and who is stalking them
+	 *
+	 * @apiNote Game must still be in play for valid call
+	 * @since 1.0
+	 */
 	public void printKillRing() {
-		if(killRing == null) { //Empty List
+		//Empty List
+		if(this.killRing == null) {
 			System.out.println(0);
-		} if(killRing.next == null){ //List with only one element
-			System.out.println("   " + killRing.name + " is stalking " + killRing.name);
-		} else { //All other lists
-			AssassinNode current = killRing;
+		//List with only one element
+		} if(this.killRing.next == null){
+			System.out.println("   " + this.killRing.name + " is stalking " + this.killRing.name);
+		//All other lists
+		} else {
+			AssassinNode current = this.killRing;
 			while(current.next.next != null) {
 				System.out.println("    " + current.name + " is staking " + current.next.name);
 				current = current.next;
 			}
-			System.out.println("    " + current.name + " is stalking "+ current.next.name);
-			System.out.println("    " + current.next.name + " is stalking "+ killRing.name);
+			System.out.println("    " + current.name + " is stalking " + current.next.name);
+			System.out.println("    " + current.next.name + " is stalking "+ this.killRing.name);
 		}
 	}
 	
-	//Pre: An object has been instantiated.
-	//Post: Prints the graveyard to console with required indentation and formatting
+	/**
+	 * Prints all the players who died and who killed them to the console
+	 *
+	 * @apiNote At least one person must have been killed for anything to print
+	 * @since 1.0
+	 */
 	public void printGraveyard() {
-		if(graveyard != null) {
-			AssassinNode current = graveyard;
+		if(this.graveyard != null) {
+			AssassinNode current = this.graveyard;
 			while(current.next != null) {
 				System.out.println("    " + current.name + " was killed by " + current.killer);
 				current = current.next;
@@ -55,81 +74,117 @@ public class AssassinManager {
 		}
 	}
 	
-	//Pre: A string to test if AssassinManager killRing contains it; kill ring is not empty.
-	//Post: Returns true if AssassinManager killRing contains the string (ignoring case); Returns false if the killRing does not contain the string given.
-	public boolean killRingContains(String name) {  //Is ok to assume killRing will never be empty
-		AssassinNode current = killRing;
-		if(current.next == null && current.name.toLowerCase().equals(name.toLowerCase())) { //Single Element List
-			return true;
-		}
-		while(current.next != null) { //All other sizes
-			if(current.name.toLowerCase().equals(name.toLowerCase())) {
-				return true;
-			}
-			current = current.next;
-		}
-		return current.name.toLowerCase().equals(name.toLowerCase()); //Checks the last element
+	/**
+	 * Verifies if the given player (Ignoring case) is still in the game
+	 *
+	 * @param name the name of the player to verify
+	 *
+	 * @return true if the player is in the game; false if the player is either in the graveyard or not in the game
+	 * @since 1.0
+	 */
+	public boolean killRingContains(String name) {
+		//Is ok to assume killRing will never be empty
+		AssassinNode current = this.killRing;
+		return linkedListContains(name, current);
 	}
-	
-	//Pre: A string to test if AssassinManager graveyard contains it.
-	//Post: Returns true if AssassinManager graveyard contains the string (ignoring case); Returns false if the graveyard does not contain the string given.
+
+	/**
+	 * Verifies if the given player (Ignoring case) has been killed
+	 *
+	 * @param name the name of the player to verify
+	 *
+	 * @return true if the player has been killed; false if the player has not been killed
+	 * @since 1.0
+	 */
 	public boolean graveyardContains(String name) {
-		AssassinNode current = graveyard;
-		if(current == null) { //Empty graveyard test
+		AssassinNode current = this.graveyard;
+		//Empty graveyard test
+		if(current == null) {
 			return false;
 		}
-		if(current.next == null && current.name.toLowerCase().equals(name.toLowerCase())) { //Single Element List test
+		return linkedListContains(name, current);
+	}
+
+	/**
+	 * Helper method to reduce redundancy for contains methods
+	 *
+	 * @since 1.1
+	 */
+	private boolean linkedListContains(String name, AssassinNode current) {
+		//Single Element List
+		if(current.next == null && current.name.toLowerCase().equals(name.toLowerCase())) {
 			return true;
 		}
-		while(current.next != null) { //All other sizes
+		//All other sizes
+		while(current.next != null) {
 			if(current.name.toLowerCase().equals(name.toLowerCase())) {
 				return true;
 			}
 			current = current.next;
 		}
-		return current.name.toLowerCase().equals(name.toLowerCase()); //Checks the last element
+		//Checks the last element
+		return current.name.toLowerCase().equals(name.toLowerCase());
 	}
-	
-	//Pre: N/A
-	//Post: Returns true if killRing only contains one player, simulating the game being over; Returns false if the killRing contains more than one player, simulating the game still in session.
+
+	/**
+	 * Checks if the game is over
+	 * @return true true if game is over; false if game is still in play
+	 * @since 1.0
+	 */
 	public boolean gameOver() {
 		return this.killRing.next == null;
 	}
 	
-	//Pre: N/A
-	//Post: Returns the name of the player if the game is over; Returns null if game is not over; Uses the gameOver() method to determine if the game is over.
+	/**
+	 * Gets the winner of the game
+	 * @return name of the player that won the game; null if the game is still in play
+	 * @since 1.0
+	 */
 	public String winner() {
 		if(gameOver()) 
-			return killRing.name;
+			return this.killRing.name;
 		return null;
 	}
 	
-	//Pre: A string if the person to kill.
-	//Post: Removes that person from the killRing, records teh killer, and moves that person to the front of the graveyard. (Ignores case in precondition)
-	//Throws: IllegalArgumentException if precondition does not match any name in the killRing; IllegalStateException if method is called when there is only one person left in the killRing; IllegalAgrumentException if both invalid input and game over.
+	/**
+	 * Completes one complete kill operation. Moves the person from the kill ring
+	 * to the graveyard and updates game state.
+	 * @param name the name of the person to kill (Ignores Case)
+	 *
+	 * @throws IllegalArgumentException if the kill ring does not contain the name
+	 * @throws IllegalStateException if the game is over when kill is called
+	 * @throws IllegalArgumentException if both kill ring does not contains the name and game is over
+	 * @since 1.0
+	 */
 	public void kill(String name) {
-		if(!killRingContains(name)) { //Check for non existent target
+		//Check for non existent target
+		if(!killRingContains(name)) {
 			throw new IllegalArgumentException();
-		} else if(gameOver()) { //Check for game over
+		//Check for game over
+		} else if(gameOver()) {
 			throw new IllegalStateException();
 		}
 		
-		AssassinNode current = killRing;
-		if(current.name.toLowerCase().equals(name.toLowerCase())) { //Current = Victim //if first element ok killRing is victim
+		AssassinNode current = this.killRing;
+		//Current = Victim
+		//If first element ok killRing is victim
+		if(current.name.toLowerCase().equals(name.toLowerCase())) {
 			AssassinNode killer = current;
 			while(killer.next != null) {
 				killer = killer.next;
 			}
 			current.killer = killer.name;
-			AssassinNode temp = graveyard;
-			graveyard = current;
+			AssassinNode temp = this.graveyard;
+			this.graveyard = current;
 			current = current.next;
-			graveyard.next = temp;
-			killRing = current;
+			this.graveyard.next = temp;
+			this.killRing = current;
 			
 		} else {
 			boolean found = false;
-			while(!found) { //Current.next = Victim, Current = killer //if all other elements of killRing is victim
+			//Current.next = Victim, Current = killer
+			//If all other elements of killRing is victim
+			while(!found) {
 				if(current.next.name.toLowerCase().equals(name.toLowerCase())) {
 					found = true;
 				} else {
@@ -137,10 +192,10 @@ public class AssassinManager {
 				}
 			}
 			current.next.killer = current.name;
-			AssassinNode temp = graveyard;
-			graveyard = current.next;
+			AssassinNode temp = this.graveyard;
+			this.graveyard = current.next;
 			current.next = current.next.next;
-			graveyard.next = temp;
+			this.graveyard.next = temp;
 		}
 	}	
 }
